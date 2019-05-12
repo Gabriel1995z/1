@@ -1,3 +1,16 @@
+Sanderling.InvalidateMeasurement();
+}
+void WarpToRandomFromFolder(string Folder,  string actions)
+{
+var listSurroundingsButton = Measurement?.InfoPanelCurrentSystem?.ListSurroundingsButton;
+
+Sanderling.MouseClickRight(listSurroundingsButton);
+var bookmarkMenuEntry = Measurement?.Menu?.FirstOrDefault()?.EntryFirstMatchingRegexPattern("^" + Folder + "$", RegexOptions.IgnoreCase);
+Sanderling.MouseClickRight(bookmarkMenuEntry);
+var Menu = Sanderling?.MemoryMeasurementParsed?.Value?.Menu?.ElementAtOrDefault(1);
+var SecondLevelMenuEntry = RandomElement(Menu.Entry?.ToArray());
+Sanderling.MouseClickLeft(SecondLevelMenuEntry);
+if (actions != null)
 Func<object> SalvagingStep()
 {
     Host.Log("               Salvaging step");
