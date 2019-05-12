@@ -1,0 +1,83 @@
+Func<object> SalvagingStep()
+{
+    Host.Log("               Salvaging step");
+    var moduleSalvagerInactive = SetModuleSalvagerInactive?.FirstOrDefault();
+
+    if (BackOnMainStep)
+        return null;
+    if (ListWreckOverviewEntry.Length == 0 || ListWreckOverviewEntry?.FirstOrDefault()?.DistanceMax > salvageRange)
+    {
+                Host.Log("               time to recover mtu");
+        while (listOverviewMtu?.Length >0 )
+        {
+            var LootButton = Measurement?.WindowInventory?[0]?.ButtonText?.FirstOrDefault(text => text.Text.RegexMatchSuccessIgnoreCase("Loot All")); 
+            if (LootButton != null)
+                {
+                Sanderling.MouseClickLeft(LootButton);
+                Host.Log("               loot mtu :))");
+                return FinishingAsite;
+                }
+            if ( listOverviewMtu?.FirstOrDefault()?.DistanceMax > 0)
+                ClickMenuEntryOnMenuRoot(listOverviewMtu?.FirstOrDefault(), "open cargo");
+        }
+            Messages("               no wrecks to salvage with salvagers, Finish the site");
+        return FinishingAsite;
+    }
+    if (null == moduleSalvagerInactive)
+    {
+            Host.Delay(1111);
+        return SalvagingStep;
+    }
+    var setTargetWreckInRange   =
+        SetTargetWreck?.Where(target => target?.DistanceMax <= salvageRange)?.ToArray();
+
+    var wreckOverviewEntryNextNotTargeted = ListWreckOverviewEntry?.Where(entry => !((entry?.MeTargeted ?? false) || (entry?.MeTargeting ?? false))).ToArray();
+    if (wreckOverviewEntryNextNotTargeted?.FirstOrDefault()?.DistanceMax > salvageRange)
+    {
+        Messages("out of range");//to add something if need
+        ClickMenuEntryOnMenuRoot(wreckOverviewEntryNextNotTargeted?.FirstOrDefault(), "approach");
+
+    }
+    else
+    {
+    var virtualtargets =(!Measurement?.Target?.IsNullOrEmpty() ?? false ) ? Measurement?.Target?.Length:0;
+    Host.Log(" "+Measurement?.Target?.Length+ " ; " +SetModuleSalvagerInactive?.Length + "   ; " +virtualtargets );
+    if (  (Measurement?.Target?.IsNullOrEmpty() ?? false) || (virtualtargets <5 && !(ListWreckOverviewEntry?.IsNullOrEmpty() ?? false)))
+            for (int i = 0; i < SetModuleSalvagerInactive?.Length ; i++)
+           {
+           virtualtargets =(!Measurement?.Target?.IsNullOrEmpty() ?? false ) ? Measurement?.Target?.Length:0;
+           if (virtualtargets == SetModuleSalvagerInactive?.Length)
+           break;
+            Sanderling.KeyDown(lockTargetKeyCode);
+            Sanderling.MouseClickLeft(wreckOverviewEntryNextNotTargeted.ElementAtOrDefault(i));
+            Sanderling.KeyUp(lockTargetKeyCode);  
+           continue;
+           }
+    }
+
+    var setTargetWreckInRangeNotAssigned =
+        setTargetWreckInRange?.Where(target => !(0 < target?.Assigned?.Length))?.ToArray();
+    if(SetModuleSalvagerInactive?.Length >0  && setTargetWreckInRangeNotAssigned?.Length >0)
+    {
+    for (int i = 0; i <SetModuleSalvagerInactive?.Length ; i++)
+        {
+        setTargetWreckInRangeNotAssigned =
+            setTargetWreckInRange?.Where(target => !(0 < target?.Assigned?.Length))?.ToArray();
+        if (setTargetWreckInRangeNotAssigned?.IsNullOrEmpty() ?? false)
+        break;
+        Sanderling.MouseClickLeft(setTargetWreckInRangeNotAssigned?.ElementAtOrDefault(i));
+        ModuleToggle(SetModuleSalvagerInactive?.ElementAtOrDefault(i));
+        continue;
+        }
+    return SalvagingStep;
+    }
+    var wreckOverviewEntryNext = ListWreckOverviewEntry?.FirstOrDefault();
+
+
+    if(null == wreckOverviewEntryNext || null == wreckOverviewEntryNextNotTargeted)
+    {
+        Host.Log("   no more wrecks??    ");
+        return SalvagingStep;
+    }
+
+    return SalvagingStep;
